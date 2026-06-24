@@ -1,8 +1,4 @@
-# parable — the local coding model (registered name). Under the hood this is the
-# Qwythos-9B GGUF; we give it the friendlier name "parable" (a small fable).
-# It uses the known-good qwen2.5-coder template (Qwythos is Qwen-based) because
-# Qwythos's own embedded template breaks Ollama's tool-parser generation, plus a
-# non-thinking prefill. Tool calls use <tool_call> tags (shim-handled).
+# parable — the local coding model (registered name).
 
 FROM ./Parable_Q4_K_M.gguf
 TEMPLATE """{{- if .Suffix }}<|fim_prefix|>{{ .Prompt }}<|fim_suffix|>{{ .Suffix }}<|fim_middle|>
