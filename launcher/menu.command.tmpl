@@ -1,0 +1,95 @@
+#!/bin/bash
+# parable launcher menu. The "__BIN__" placeholder is replaced with the absolute
+# path to the built agent binary by install.sh when it generates LocalAgent.app.
+
+BIN="__BIN__"
+
+# Clean a path pasted by dragging a folder into Terminal (handles escaped spaces
+# and surrounding quotes, then trims whitespace).
+clean_path() {
+  local p="$1"
+  p="${p//\\ / }"
+  p="${p%\"}"; p="${p#\"}"
+  p="${p%\'}"; p="${p#\'}"
+  p="${p#"${p%%[![:space:]]*}"}"
+  p="${p%"${p##*[![:space:]]}"}"
+  printf '%s' "$p"
+}
+
+# Prompt the user to drag a folder in; echoes the cleaned path on stdout.
+ask_folder() {
+  local raw
+  read -r -p "Drag the project folder here, then press Enter: " raw
+  clean_path "$raw"
+}
+
+run_task() { # <folder> <binary args...>
+  local dir="$1"; shift
+  if [ ! -d "$dir" ]; then echo "That doesn't look like a folder — try again."; return 1; fi
+  echo
+  echo "  working… (local model — this can take a moment) ⏳"
+  echo
+  ( cd "$dir" && "$BIN" "$@" )
+}
+
+# Wire parable into Claude Code as an MCP server.
+setup_mcp() {
+  if ! command -v claude >/dev/null 2>&1; then
+    echo "Claude Code's 'claude' command isn't available."
+    echo "Open Claude Code and install its command-line tool, then try this again."
+    return 1
+  fi
+  claude mcp remove --scope user localagent >/dev/null 2>&1   # make it repeatable
+  if claude mcp add --scope user localagent -- "$BIN" --mcp; then
+    echo
+    echo "✓ Added parable to Claude Code (as 'localagent'), available in all your projects."
+    echo "  Start a NEW Claude Code session, then ask it to use the parable tools —"
+    echo "  e.g. \"use the localagent summarize_repo tool\" or \"...review_bugs\"."
+  else
+    echo "Couldn't add it automatically. You can run this yourself:"
+    echo "  claude mcp add --scope user localagent -- \"$BIN\" --mcp"
+  fi
+}
+
+if [ ! -x "$BIN" ]; then
+  echo "Agent binary not found at: $BIN"
+  echo "Re-run the installer (./install.sh) to rebuild it."
+  read -r -p "Press Enter to close."
+  exit 1
+fi
+
+while true; do
+  clear
+  echo "🪶  parable — local coding agent"
+  echo "================================="
+  echo
+  echo "  1) Summarize a project"
+  echo "  2) Review a project for likely bugs"
+  echo "  3) Find duplicate / repeated code"
+  echo "  4) Explain a specific file"
+  echo "  5) Custom task…"
+  echo "  6) Set up Claude Code integration (MCP)"
+  echo "  7) Quit"
+  echo
+  read -r -p "> " CHOICE
+
+  case "$CHOICE" in
+    1) D="$(ask_folder)"; run_task "$D" --task summary ;;
+    2) D="$(ask_folder)"; run_task "$D" --task bugs ;;
+    3) D="$(ask_folder)"; run_task "$D" --task duplicates ;;
+    4) D="$(ask_folder)"
+       read -r -p "File path (relative to the folder): " F
+       run_task "$D" --task explain --path "$(clean_path "$F")" ;;
+    5) D="$(ask_folder)"
+       read -r -p "Describe the task: " T
+       run_task "$D" "$T" ;;
+    6) setup_mcp ;;
+    7|q|Q) break ;;
+    *) echo "Please pick a number from 1 to 7."; sleep 1; continue ;;
+  esac
+
+  echo
+  read -r -p "Press Enter to return to the menu…" _
+done
+
+echo "Bye 👋"

@@ -1,0 +1,44 @@
+[package]
+name = "local-coding-agent"
+version = "0.0.1"
+edition = "2021"
+license = "MIT"
+description = "parable — a small, local, offline coding agent (harness-rs + Ollama), usable standalone or via MCP with Claude Code."
+# harness-rs 0.0.13 (edition 2024 internally) requires a recent toolchain.
+# Run `rustup update` if cargo complains about the Rust version.
+rust-version = "1.92"
+
+[dependencies]
+# NOTE: on crates.io these crates are published under the `harness-rs-*` names
+# (the bare `harness-core`/`harness-loop`/… names belong to a *different*,
+# unrelated project). We use Cargo's `package = ` rename so the import paths in
+# src/main.rs read as `harness_core`, `harness_loop`, etc.
+
+# Facade crate — re-exports the core types + procedural macros. Included for
+# convenience and future extension; main.rs imports the sub-crates directly.
+harness          = { package = "harness-rs",          version = "0.0.13" }
+# Core traits & types: Model, Tool, Task, World, ...
+harness-core     = { package = "harness-rs-core",     version = "0.0.13" }
+# The ReAct agent loop: AgentLoop + Outcome.
+harness-loop     = { package = "harness-rs-loop",     version = "0.0.13" }
+# Model adapters: OpenAiCompat + the `providers` table (incl. Ollama).
+harness-models   = { package = "harness-rs-models",   version = "0.0.13" }
+# Default World runtime: default_world(...).
+harness-context  = { package = "harness-rs-context",  version = "0.0.13" }
+# Jail-safe filesystem tools: ReadFile, ListDir, WriteFile, EditFile.
+harness-tools-fs = { package = "harness-rs-tools-fs", version = "0.0.13" }
+# MCP stdio server — exposes our tools to Claude Code / Cursor / Codex.
+harness-mcp      = { package = "harness-rs-mcp",      version = "0.0.13" }
+
+# Async runtime + ergonomic error handling.
+tokio  = { version = "1", features = ["full"] }
+anyhow = "1"
+
+# CLI argument parsing (mode flags + named tasks).
+clap   = { version = "4", features = ["derive"] }
+
+# Used by the tool-call recovery shim (src/tool_recovery.rs): implement the
+# async `Model` trait, name its streaming return type, and parse tool-call JSON.
+async-trait = "0.1"
+futures     = "0.3"
+serde_json  = "1"

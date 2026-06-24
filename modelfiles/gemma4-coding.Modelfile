@@ -1,0 +1,24 @@
+# Modelfile for the locally-downloaded Gemma coding GGUF.
+#
+# Register it with Ollama (point -f at this file, and FROM at your .gguf):
+#   ollama create gemma4-coding -f modelfiles/gemma4-coding.Modelfile
+#
+# Then point the agent at it (no recompile needed):
+#   OLLAMA_MODEL=gemma4-coding cargo run
+#
+# Notes:
+# - No TEMPLATE block is needed: Ollama reads the chat template + tokenizer
+#   config from the GGUF metadata.
+# - Tool calling: even if Ollama doesn't surface native `tool_calls` for this
+#   model, the agent's recovery shim (src/tool_recovery.rs) extracts tool calls
+#   from the model's text content — so it works as long as the model emits
+#   recognisable call JSON.
+
+FROM ./gemma4-coding-Q4_K_M.gguf
+
+# Give the agent headroom for tool results + multi-step reasoning.
+PARAMETER num_ctx 8192
+
+# Low temperature → more deterministic, less chatty. Weak models narrate
+# ("I'll now read X") at higher temps instead of emitting the tool-call JSON.
+PARAMETER temperature 0.15
