@@ -43,8 +43,13 @@ setup_mcp() {
   if claude mcp add --scope user localagent -- "$BIN" --mcp; then
     echo
     echo "✓ Added parable to Claude Code (as 'localagent'), available in all your projects."
-    echo "  Start a NEW Claude Code session, then ask it to use the parable tools —"
-    echo "  e.g. \"use the localagent summarize_repo tool\" or \"...review_bugs\"."
+    echo
+    echo "  Restart Claude Code, then just ask it things like:"
+    echo "    • \"use localagent to summarize this project\""
+    echo "    • \"have localagent review this folder for bugs\""
+    echo "    • \"ask localagent to find duplicate code here\""
+    echo "    • \"have localagent explain <some file>\""
+    echo "  Or just ask naturally — Claude uses the parable tools when they fit."
   else
     echo "Couldn't add it automatically. You can run this yourself:"
     echo "  claude mcp add --scope user localagent -- \"$BIN\" --mcp"

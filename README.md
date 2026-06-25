@@ -72,8 +72,8 @@ this **server-side-agnostically**:
   but the text content *looks* like one, it recovers the call(s) from the content.
   It handles bare JSON, `<tool_call>…</tool_call>` (Qwen-style) and fenced
   ```` ```json ```` blocks, and skips echoed `<tool_response>` blobs.
-- **`<think>` stripping** — reasoning models (Qwen3 / QwQ style, including
-  Qwythos) wrap their output in `<think>…</think>`. The wrapper strips those
+- **`<think>` stripping** — reasoning models (Qwen3 / QwQ style) wrap their
+  output in `<think>…</think>`. The wrapper strips those
   blocks so the real answer (and any tool call after the reasoning) is what the
   loop sees.
 

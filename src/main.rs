@@ -33,9 +33,8 @@ use tool_recovery::ToolCallRecovery;
 /// tag from `ollama list`. Override per-run without editing code, e.g.:
 ///   OLLAMA_MODEL=gemma4-coding cargo run
 ///
-/// `parable` (a small fable 🪶) is the default — it's the Qwythos-9B GGUF
-/// registered under a friendlier name, and it produced the best, most detailed
-/// summary in testing. It's a reasoning model set up via a
+/// `parable` (a small fable 🪶) is the default — a Qwen-based 9B reasoning model
+/// that produced the best, most detailed summary in testing. It's set up via a
 /// custom Modelfile (modelfiles/parable.Modelfile): a tool-compatible template
 /// plus a non-thinking prefill. `gemma4-coding` is the faster alternative.
 ///
